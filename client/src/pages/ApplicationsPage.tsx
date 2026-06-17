@@ -128,7 +128,12 @@ export function ApplicationsPage() {
               {statuses.map((status) => <option key={status}>{status}</option>)}
             </select>
           </div>
-          {loading ? <LoadingState /> : visibleApplications.length === 0 ? <EmptyState title="No applications match this view" /> : (
+          {loading ? <LoadingState /> : visibleApplications.length === 0 ? (
+            <EmptyState
+              title="No applications match this view"
+              description="Create an application or change the status filter to review a different part of your pipeline."
+            />
+          ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">

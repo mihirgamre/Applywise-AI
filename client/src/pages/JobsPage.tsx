@@ -85,7 +85,12 @@ export function JobsPage() {
           </div>
         </form>
         <section>
-          {loading ? <LoadingState /> : jobs.length === 0 ? <EmptyState title="No jobs yet" /> : (
+          {loading ? <LoadingState /> : jobs.length === 0 ? (
+            <EmptyState
+              title="No jobs yet"
+              description="Add target roles with full job descriptions so ApplyWise can track applications and analyze resume fit."
+            />
+          ) : (
             <div className="space-y-4">
               {jobs.map((job) => (
                 <article className="panel p-5" key={job.id}>

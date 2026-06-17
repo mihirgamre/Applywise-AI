@@ -1,56 +1,124 @@
 # ApplyWise AI
 
-ApplyWise AI is a full-stack portfolio project for CS students applying to internships and new-grad SWE roles. It combines resume management, job tracking, application status workflows, dashboard analytics, and AI-powered resume-to-job fit analysis.
+ApplyWise AI is a full-stack SaaS-style portfolio project for computer science students managing internship and new-grad software engineering applications. It combines resume storage, job tracking, application pipeline management, dashboard analytics, file parsing, and AI-assisted resume-to-job fit analysis.
+
+Live app: `https://applywise-ai-u055.onrender.com`
+
+> Render free-tier services may sleep after inactivity, so the first request can take 30-60 seconds.
+
+## Why This Project Matters
+
+Students often track applications in spreadsheets and tailor resumes manually. ApplyWise AI turns that workflow into a production-style web app: users can upload or paste resumes, save job descriptions, track every application stage, and generate structured fit analysis that highlights strengths, weaknesses, missing skills, missing keywords, tailored bullet ideas, and interview questions.
+
+## Demo Login
+
+Seed the database first if the demo account is not available:
+
+```bash
+npm run seed
+```
+
+Then log in with:
+
+```text
+Email: demo@applywise.ai
+Password: Password123!
+```
+
+## Feature Highlights
+
+- Secure authentication with JWT, bcrypt password hashing, and protected routes.
+- User-scoped authorization across resumes, jobs, applications, analyses, and activity.
+- Resume upload support for PDF and DOCX files with server-side text extraction.
+- Manual resume entry and editing for quick iteration.
+- Job tracker with company, title, location, URL, source, employment type, and full job description.
+- Application pipeline with statuses for saved, applied, online assessment, interview, offer, rejected, and withdrawn.
+- AI analysis workflow with OpenAI API support and deterministic mock fallback when no API key is configured.
+- Recruiter-style dashboard with status charts, match-score tracking, active pipeline counts, missing-skill insights, recent applications, and activity history.
+- Production-ready deployment path with Render Blueprint, PostgreSQL, Prisma migrations, and environment-based configuration.
 
 ## Tech Stack
 
-- Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, Axios, Recharts
-- Backend: Node.js, Express, TypeScript, PostgreSQL, Prisma, JWT, bcrypt, multer, pdf-parse, mammoth, zod
-- AI: OpenAI API when `OPENAI_API_KEY` is configured, deterministic mock analysis otherwise
-- Infrastructure: Docker Compose PostgreSQL
+Frontend:
 
-## Features
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+- Recharts
+- Lucide React
 
-- Register, login, logout, and JWT-protected routes
-- User-scoped resumes, jobs, applications, analyses, and activity
-- PDF/DOCX upload with text extraction and 5MB limit
-- Manual resume creation and editing
-- Job CRUD with company, title, location, URL, source, employment type, and description
-- Application tracker with status, priority, applied date, deadline, and notes
-- AI resume-job analysis with match score, strengths, weaknesses, missing skills, missing keywords, tailored bullets, tailored summary, and interview questions
-- Dashboard with application counts, status chart, average match score, recent activity, and top missing skills
+Backend:
+
+- Node.js
+- Express
+- TypeScript
+- PostgreSQL
+- Prisma
+- JWT
+- bcrypt
+- multer
+- pdf-parse
+- mammoth
+- zod
+- helmet
+- express-rate-limit
+
+AI:
+
+- OpenAI API when `OPENAI_API_KEY` is configured
+- Mock analysis fallback for free local and hosted demos
+
+Deployment:
+
+- Render web service
+- Render PostgreSQL
+- Render Blueprint via `render.yaml`
+- Docker Compose for local PostgreSQL
 
 ## Screenshots
 
-Add screenshots here after running the app:
+Add screenshots after capturing the deployed app:
 
 - Landing page
 - Dashboard
+- AI Analysis workflow
 - Resume management
 - Application tracker
-- AI analysis result
 
-## Architecture Overview
-
-The repository is a two-workspace npm monorepo:
+## Architecture
 
 ```txt
-client/  React + Vite UI
-server/  Express API + Prisma
+applywise-ai/
+  client/        React, TypeScript, Tailwind, Recharts
+  server/        Express, Prisma, auth, uploads, AI analysis
+  render.yaml    Render Blueprint for app + PostgreSQL
 ```
 
-The React app stores the JWT in local storage and sends it through an Axios interceptor. The Express API validates requests with zod, enforces ownership through `userId` checks, stores structured arrays as PostgreSQL JSON, and records key actions in the `Activity` table.
+The production server hosts both the API and the built React app:
 
-## Database Schema Summary
+```txt
+Browser
+  -> Express static React app
+  -> /api/* Express REST routes
+  -> Prisma
+  -> PostgreSQL
+```
 
-- `User`: name, email, password hash, timestamps
-- `Resume`: user-owned resume text, original file name, parsed skills
-- `Job`: user-owned role data and job description
-- `Application`: links a job and optional resume with status, priority, dates, and notes
-- `Analysis`: stored AI or mock fit analysis for a resume and job
-- `Activity`: recent user activity for the dashboard
+Authentication uses JWT bearer tokens. API routes validate request bodies with zod and enforce ownership checks by filtering protected records with `userId`.
 
-## API Routes
+## Database Models
+
+- `User`: account identity and password hash.
+- `Resume`: parsed or manually entered resume text and extracted skills.
+- `Job`: target role details and job description.
+- `Application`: status, priority, dates, notes, linked job, and optional resume.
+- `Analysis`: structured resume-job fit result.
+- `Activity`: dashboard timeline events.
+
+## API Overview
 
 Auth:
 
@@ -93,28 +161,28 @@ Dashboard:
 
 - `GET /api/dashboard/stats`
 
-## Setup
+## Local Setup
 
-1. Install dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start PostgreSQL:
+Start PostgreSQL:
 
 ```bash
 docker compose up -d
 ```
 
-3. Create environment files:
+Create environment files:
 
 ```bash
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-4. Generate Prisma client, run migrations, and seed demo data:
+Run Prisma and seed data:
 
 ```bash
 npm run prisma:generate
@@ -122,79 +190,98 @@ npm run prisma:migrate -- --name init
 npm run seed
 ```
 
-5. Start both apps:
+Start development servers:
 
 ```bash
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`  
-Backend: `http://localhost:5000/api`
+Local URLs:
 
-## Deployment
-
-The production server can host the built React app and the API from one Node process.
-
-Build command:
-
-```bash
-npm install
-npm run build
-npm run prisma:deploy
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:5000/api
 ```
-
-Start command:
-
-```bash
-npm start
-```
-
-Required production environment variables:
-
-- `DATABASE_URL`
-- `JWT_SECRET` with at least 32 characters
-- `NODE_ENV=production`
-- `OPENAI_API_KEY` optional; mock analysis is used when absent
-- `OPENAI_MODEL` optional; defaults to `gpt-4o-mini`
-
-For split frontend/backend deployments, set `CLIENT_URL` on the API to the frontend origin. For single-domain deployments, leave `CLIENT_URL` unset.
 
 ## Environment Variables
 
-`server/.env`:
+Server:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/applywise_ai?schema=public
 JWT_SECRET=replace-with-a-long-random-secret
 OPENAI_API_KEY=
-OPENAI_MODEL=
+OPENAI_MODEL=gpt-4o-mini
 PORT=5000
 CLIENT_URL=http://localhost:5173
 ```
 
-`client/.env`:
+Client:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## Demo Login
+For a same-domain production deployment, the client defaults to `/api`, so `VITE_API_URL` is not required.
 
-- Email: `demo@applywise.ai`
-- Password: `Password123!`
+## Deployment
+
+The repository includes a Render Blueprint:
+
+```yaml
+render.yaml
+```
+
+Render creates:
+
+- Node web service
+- PostgreSQL database
+- `DATABASE_URL`
+- generated `JWT_SECRET`
+
+Production command flow:
+
+```bash
+npm install
+npm run build
+npm run prisma:deploy
+npm start
+```
+
+On Render free tier, migrations run in the service start command because free web services do not support `preDeployCommand`.
+
+Optional:
+
+```env
+OPENAI_API_KEY=your-api-key
+```
+
+If omitted, the app uses mock AI analysis so the demo remains free to run.
+
+## Security Notes
+
+- Passwords are hashed with bcrypt.
+- JWT tokens protect private API routes.
+- Protected resources are scoped by `userId`.
+- Request validation uses zod.
+- File uploads are limited to 5MB and only accept PDF/DOCX.
+- Uploaded files are parsed into text; binaries are not stored.
+- Helmet and auth rate limiting are enabled on the Express server.
+- Password hashes are never returned from the API.
 
 ## Resume Bullet Examples
 
-- Built an AI-powered job application tracker using React, TypeScript, Node.js, Express, PostgreSQL, and Prisma.
-- Integrated LLM-powered resume analysis to score job fit, identify missing skills, and generate tailored resume improvements.
-- Designed secure REST APIs with JWT authentication, file parsing, user-specific authorization, and structured AI response validation.
-- Developed a responsive dashboard with application analytics, match-score tracking, and missing-skill insights.
+- Built ApplyWise AI, a full-stack AI-powered job application tracker using React, TypeScript, Node.js, Express, PostgreSQL, Prisma, and Tailwind CSS.
+- Implemented secure JWT authentication, bcrypt password hashing, zod validation, protected REST APIs, and user-scoped authorization across resumes, jobs, applications, and AI analyses.
+- Integrated PDF/DOCX resume parsing and OpenAI-compatible resume-job fit analysis with mock fallback for cost-free demos.
+- Designed a responsive SaaS dashboard with application pipeline analytics, Recharts visualizations, match-score tracking, recent activity, and missing-skill insights.
+- Prepared the app for production with Render deployment, PostgreSQL migrations, environment-based configuration, security middleware, and rate limiting.
 
 ## Future Improvements
 
-- Add password reset and email verification
-- Add pagination and search across resumes, jobs, and applications
-- Add screenshot capture for portfolio documentation
-- Add unit and integration tests for API ownership checks
-- Add CSV export for application tracking
-- Add richer skill extraction and keyword normalization
+- Add automated tests for auth, ownership checks, and AI response validation.
+- Add pagination and search across jobs and applications.
+- Add CSV export for application tracking.
+- Add email reminders for deadlines and interviews.
+- Add richer resume skill extraction and keyword normalization.
+- Add route-level code splitting to reduce the production JS bundle size.

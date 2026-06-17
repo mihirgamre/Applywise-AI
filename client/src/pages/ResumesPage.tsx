@@ -102,7 +102,12 @@ export function ResumesPage() {
           </form>
         </section>
         <section>
-          {loading ? <LoadingState /> : resumes.length === 0 ? <EmptyState title="No resumes yet" /> : (
+          {loading ? <LoadingState /> : resumes.length === 0 ? (
+            <EmptyState
+              title="No resumes yet"
+              description="Upload a PDF or DOCX resume, or paste resume text manually to start matching against job descriptions."
+            />
+          ) : (
             <div className="space-y-4">
               {resumes.map((resume) => (
                 <article className="panel p-5" key={resume.id}>

@@ -1,0 +1,21 @@
+{
+  "name": "applywise-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered resume and job application tracker for CS students.",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build -w server && npm run build -w client",
+    "server": "npm run dev -w server",
+    "client": "npm run dev -w client",
+    "prisma:generate": "npm run prisma:generate -w server",
+    "prisma:migrate": "npm run prisma:migrate -w server --",
+    "prisma:deploy": "npm run prisma:deploy -w server",
+    "seed": "npm run seed -w server",
+    "start": "npm run start -w server"
+  }
+}

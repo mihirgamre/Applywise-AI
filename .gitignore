@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.DS_Store
+coverage/
+*.log
+*.tsbuildinfo
+.pgdata/
+pg.log
+pg-bg.log
+pg-direct.log
+pg-direct.err.log
+server/.pgpass-init
+server/uploads/
+client/.vite/
